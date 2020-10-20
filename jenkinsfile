@@ -1,0 +1,31 @@
+- hosts: jenkins
+  remote_user: ec2-user
+  become: yes
+  tasks:
+      - name: install jenkins
+        yum_repository: 
+           name: jenkins
+           description: jenkins repo
+           baseurl: http://pkg.jenkins.io/redhat
+           gpgkey: http://pkg.jenkins.io/redhat/jenkins.io.key
+      
+      - name: install java and jenkins
+        yum:
+           name: "{{ item }}"
+           state: present
+        loop:
+           - java 
+           - jenkins
+      
+      - name: start service
+        service:
+           name: jenkins
+           state: started
+
+      - name: jenkins password
+        command: cat /var/lib/jenkins/secrets/initialAdminPassword
+        register: jenkinspwd
+
+      - name: print jenkins password
+        debug:
+           msg: "{{jenkinspwd}}"
